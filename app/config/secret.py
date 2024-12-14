@@ -2,5 +2,6 @@ from app.config.base import BaseConfig
 
 
 class SecretsConfig(BaseConfig):
-    SECRET: str
+    TELEGRAM_SECRET: str
+    JWT_SECRET: str
     ALGORITHM: str
