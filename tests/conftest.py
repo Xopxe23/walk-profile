@@ -1,9 +1,10 @@
 import asyncio
 import os
 import sys
+from typing import AsyncGenerator
 
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -17,7 +18,7 @@ engine = create_async_engine(DB_URL, poolclass=NullPool)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
-async def override_get_async_session() -> AsyncSession | None:
+async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         yield session
 
@@ -41,5 +42,5 @@ def event_loop(request):
 
 @pytest.fixture(scope="function")
 async def async_client():
-    async with AsyncClient(app=fastapi_app, base_url="http://test") as async_client:
+    async with AsyncClient(transport=ASGITransport(app=fastapi_app), base_url="http://test") as async_client:
         yield async_client

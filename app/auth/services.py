@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import uuid
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, Optional, Protocol
 
@@ -40,10 +41,10 @@ class AuthService:
         return calculated_hash == user_data.hash
 
     @staticmethod
-    def create_access_token(user_id: int) -> str:
+    def create_access_token(user_id: uuid.UUID) -> str:
         """Создание access token (JWT)."""
         payload = {
-            "user_id": user_id,
+            "user_id": str(user_id),
             "exp": datetime.utcnow() + timedelta(hours=3)
         }
         access_token = jwt.encode(payload, settings.secret.JWT_SECRET, algorithm=settings.secret.ALGORITHM)

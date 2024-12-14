@@ -20,8 +20,8 @@ class UserSchema(BaseModel):
     user_id: uuid.UUID
     telegram_id: int
     name: str
-    age: int
-    sex: UserSex
+    age: Optional[int]
+    sex: Optional[UserSex]
 
     class Config:
         from_attributes = True
