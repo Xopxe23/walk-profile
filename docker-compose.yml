@@ -1,0 +1,41 @@
+networks:  # Определяем пользовательскую сеть
+  app-network:
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://walk-user:walk-password@db:5432/walk-profile
+    depends_on:
+      db:
+        condition: service_healthy  # Убедимся, что БД готова
+    networks:  # Подключаем к пользовательской сети
+      - app-network
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: walk-user
+      POSTGRES_PASSWORD: walk-password
+      POSTGRES_DB: walk-profile
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:  # Подключаем к пользовательской сети
+      - app-network
+    healthcheck:  # Проверка готовности БД
+      test: ["CMD", "pg_isready", "-U", "walk-user", "-d", "walk-profile"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  db_data:
