@@ -1,11 +1,12 @@
+import uuid
 from typing import AsyncGenerator, Optional
 
 from fastapi import Depends
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
-from app.auth.schemas import TelegramUserInSchema, UserSchema
+from app.auth.schemas import TelegramUserInSchema, UserSchema, UserUpdateSchema
 from app.database import get_async_session
 
 
@@ -21,9 +22,23 @@ class UserRepository:
         query = select(self.user_table).where(self.user_table.telegram_id == telegram_id)
         result = await self.session.execute(query)
         user = result.scalar_one_or_none()
+        return UserSchema.model_validate(user) if user else None
+
+    async def get_user_by_id(self, user_id: uuid.UUID) -> Optional[UserSchema]:
+        query = select(self.user_table).where(self.user_table.user_id == user_id)
+        result = await self.session.execute(query)
+        user = result.scalar_one_or_none()
         if user is None:
             return None
         return UserSchema.model_validate(user)
+
+    async def update_user_info(self, user_id: uuid.UUID, user_data: UserUpdateSchema) -> Optional[UserSchema]:
+        query = (update(self.user_table).where(self.user_table.user_id == user_id)
+                 .values(**user_data.dict()).returning(self.user_table))
+        result = await self.session.execute(query)
+        await self.session.commit()
+        user = result.scalar_one_or_none()
+        return UserSchema.model_validate(user) if user else None
 
     async def create_user_with_telegram_user_data(self, user_data: TelegramUserInSchema) -> UserSchema:
         user = self.user_table(

@@ -8,12 +8,18 @@ import jwt
 from fastapi import Depends
 
 from app.auth.repositories import get_user_repository
-from app.auth.schemas import TelegramUserInSchema, UserSchema
+from app.auth.schemas import TelegramUserInSchema, UserSchema, UserUpdateSchema
 from app.config.main import settings
 
 
 class UserRepositoryInterface(Protocol):
     async def get_user_by_telegram_id(self, telegram_id: int) -> Optional[UserSchema]:
+        ...
+
+    async def get_user_by_id(self, user_id: uuid.UUID) -> Optional[UserSchema]:
+        ...
+
+    async def update_user_info(self, user_id: uuid.UUID, user_data: UserUpdateSchema) -> Optional[UserSchema]:
         ...
 
     async def create_user_with_telegram_user_data(self, user_data: TelegramUserInSchema) -> UserSchema:
@@ -44,8 +50,8 @@ class AuthService:
     def create_access_token(user_id: uuid.UUID) -> str:
         """Создание access token (JWT)."""
         payload = {
-            "user_id": str(user_id),
-            "exp": datetime.utcnow() + timedelta(hours=3)
+            "sub": str(user_id),
+            "exp": datetime.utcnow() + timedelta(hours=3),
         }
         access_token = jwt.encode(payload, settings.secret.JWT_SECRET, algorithm=settings.secret.ALGORITHM)
         return access_token
@@ -53,6 +59,13 @@ class AuthService:
     async def get_user_by_telegram_id(self, telegram_id: int) -> Optional[UserSchema]:
         result = await self.user_repository.get_user_by_telegram_id(telegram_id)
         return result
+
+    async def get_user_by_id(self, user_id: uuid.UUID) -> Optional[UserSchema]:
+        result = await self.user_repository.get_user_by_id(user_id)
+        return result
+
+    async def update_user_info(self, user_id: uuid.UUID, user_data: UserUpdateSchema) -> Optional[UserSchema]:
+        return await self.user_repository.update_user_info(user_id, user_data)
 
     async def create_user_with_telegram_user_data(self, user_data: TelegramUserInSchema) -> UserSchema:
         user = await self.user_repository.create_user_with_telegram_user_data(user_data)

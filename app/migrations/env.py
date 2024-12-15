@@ -3,9 +3,9 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from app.auth.models import User
 from app.config.main import settings
 from app.database import Base
-from app.auth.models import User
 
 config = context.config
 config.set_main_option("sqlalchemy.url", f"{settings.postgres.DB_URL}?async_fallback=True")

@@ -27,5 +27,11 @@ class UserSchema(BaseModel):
         from_attributes = True
 
 
+class UserUpdateSchema(BaseModel):
+    name: Optional[str] = None
+    age: Optional[int] = None
+    sex: Optional[UserSex] = None
+
+
 class AccessTokenOutSchema(BaseModel):
     access_token: str
