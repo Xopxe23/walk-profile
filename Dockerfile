@@ -1,11 +1,13 @@
 FROM python:3.11-slim
 
-WORKDIR /app
+RUN mkdir /walk-profile
+
+WORKDIR /walk-profile
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
+RUN chmod a+x /walk-profile/docker/*.sh

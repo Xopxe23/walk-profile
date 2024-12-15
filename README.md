@@ -8,9 +8,34 @@
 - Работа с БД Postgres. Генерация файлов миграций alembic.
 - Запуск приложения через Docker
 
+## Для запуска локально:
 
-### Для запуска контейнера:
+```
+python3 -m venv .venv
+```
+```
+pip install -r requirements.txt
+```
+```
+python app/main.py
+```
+
+### Для запуска тестов:
+
+```
+pytest
+```
+
+
+## Для запуска docker контейнера:
+В `.env` MODE=PROD!
 
 ```
 docker-compose up --build
+```
+
+## Для запуска тестов внутри docker контейнера:
+
+```
+docker exec -it walk-profile-app pytest
 ```

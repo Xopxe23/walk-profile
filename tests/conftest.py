@@ -13,7 +13,7 @@ from app.config.main import settings
 from app.database import Base, get_async_session
 from app.main import app as fastapi_app
 
-DB_URL = settings.test_postgres.TEST_DB_URL
+DB_URL = settings.postgres.TEST_DB_URL
 engine = create_async_engine(DB_URL, poolclass=NullPool)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
@@ -35,7 +35,8 @@ async def prepare_database():
 
 @pytest.fixture(scope="session")
 def event_loop(request):
-    loop = asyncio.get_event_loop_policy().new_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     yield loop
     loop.close()
 
