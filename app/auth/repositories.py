@@ -34,7 +34,7 @@ class UserRepository:
 
     async def update_user_info(self, user_id: uuid.UUID, user_data: UserUpdateSchema) -> Optional[UserSchema]:
         query = (update(self.user_table).where(self.user_table.user_id == user_id)
-                 .values(**user_data.dict()).returning(self.user_table))
+                 .values(**user_data.dict(exclude_none=True)).returning(self.user_table))
         result = await self.session.execute(query)
         await self.session.commit()
         user = result.scalar_one_or_none()
