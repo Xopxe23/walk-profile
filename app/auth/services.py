@@ -7,9 +7,11 @@ from typing import AsyncGenerator, Optional, Protocol
 import jwt
 from fastapi import Depends
 
+from app.auth.filters import BaseFilter
 from app.auth.repositories import get_user_repository
-from app.auth.schemas import TelegramUserInSchema, UserSchema, UserUpdateSchema
+from app.auth.schemas import LikeCreateSchema, LikeSchema, TelegramUserInSchema, UserSchema, UserUpdateSchema
 from app.config.main import settings
+from app.tasks.tasks import check_mutual_like
 
 
 class UserRepositoryInterface(Protocol):
@@ -23,6 +25,12 @@ class UserRepositoryInterface(Protocol):
         ...
 
     async def create_user_with_telegram_user_data(self, user_data: TelegramUserInSchema) -> UserSchema:
+        ...
+
+    async def create_like(self, user_id: uuid.UUID, like_data: LikeCreateSchema) -> LikeSchema:
+        ...
+
+    async def get_my_likes(self, user_id: uuid.UUID, filters: BaseFilter) -> list[LikeSchema]:
         ...
 
 
@@ -70,6 +78,15 @@ class AuthService:
     async def create_user_with_telegram_user_data(self, user_data: TelegramUserInSchema) -> UserSchema:
         user = await self.user_repository.create_user_with_telegram_user_data(user_data)
         return user
+
+    async def create_like(self, user_id: uuid.UUID, like_data: LikeCreateSchema) -> LikeSchema:
+        like = await self.user_repository.create_like(user_id, like_data)
+        check_mutual_like.delay(like.liked_user_id, like.user_id)
+        return like
+
+    async def get_my_likes(self, user_id: uuid.UUID, filters: BaseFilter) -> list[LikeSchema]:
+        likes = await self.user_repository.get_my_likes(user_id, filters)
+        return likes
 
 
 def get_auth_service(

@@ -50,7 +50,7 @@ async def async_client():
 @pytest.fixture(scope="function")
 async def authenticated_async_client():
     async with AsyncClient(transport=ASGITransport(app=fastapi_app), base_url="http://test") as async_client:
-        response = await async_client.post("/auth/token", json={
+        response = await async_client.post("/profile/token", json={
             "id": 123456789,
             "first_name": "Alice",
             "last_name": "Smith",

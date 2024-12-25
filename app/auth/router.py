@@ -5,15 +5,22 @@ import jwt
 from fastapi import APIRouter, Depends
 from fastapi.security import APIKeyHeader
 
-from app.auth.schemas import AccessTokenOutSchema, TelegramUserInSchema, UserSchema, UserUpdateSchema
+from app.auth.filters import BaseFilter
+from app.auth.schemas import (
+    AccessTokenOutSchema,
+    LikeCreateSchema,
+    LikeSchema,
+    TelegramUserInSchema,
+    UserSchema,
+    UserUpdateSchema,
+)
 from app.auth.services import get_auth_service
 from app.config.main import settings
-from app.exceptions.auth import InvalidTelegramDataException, InvalidTokenException
+from app.exceptions.auth import InvalidTelegramDataException, InvalidTokenException, UserNotFoundException
 from app.exceptions.common import NotFoundException
 
 router = APIRouter(
-    prefix="/auth",
-    tags=["Auth"],
+    prefix="/profile",
 )
 
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
@@ -49,8 +56,14 @@ class AuthServiceInterface(Protocol):
     async def create_user_with_telegram_user_data(self, user_data: TelegramUserInSchema) -> UserSchema:
         ...
 
+    async def create_like(self, user_id: uuid.UUID, like_data: LikeCreateSchema) -> LikeSchema:
+        ...
 
-@router.post("/token")
+    async def get_my_likes(self, user_id: uuid.UUID, filters: BaseFilter) -> list[LikeSchema]:
+        ...
+
+
+@router.post("/token", tags=["Auth"])
 async def telegram_auth(
         telegram_user_data: TelegramUserInSchema,
         auth_service: AuthServiceInterface = Depends(get_auth_service),
@@ -69,7 +82,7 @@ async def telegram_auth(
     )
 
 
-@router.get("/me")
+@router.get("/me", tags=["Profile"])
 async def get_me(
         user_id: uuid.UUID = Depends(get_current_user_id),
         auth_service: AuthServiceInterface = Depends(get_auth_service),
@@ -78,7 +91,7 @@ async def get_me(
     return user
 
 
-@router.put("/me")
+@router.put("/me", tags=["Profile"])
 async def update_user_data(
         user_data: UserUpdateSchema,
         user_id: uuid.UUID = Depends(get_current_user_id),
@@ -88,3 +101,26 @@ async def update_user_data(
     if not user:
         raise NotFoundException
     return user
+
+
+@router.post("/like", tags=["Like"])
+async def like_profile(
+        like_data: LikeCreateSchema,
+        user_id: uuid.UUID = Depends(get_current_user_id),
+        auth_service: AuthServiceInterface = Depends(get_auth_service),
+) -> LikeSchema:
+    user_exists = await auth_service.get_user_by_id(like_data.liked_user_id)
+    if not user_exists:
+        raise UserNotFoundException
+    like = await auth_service.create_like(user_id, like_data)
+    return like
+
+
+@router.get("/likes", tags=["Like"])
+async def get_my_likes(
+        user_id: uuid.UUID = Depends(get_current_user_id),
+        filters: BaseFilter = Depends(),
+        auth_service: AuthServiceInterface = Depends(get_auth_service),
+) -> list[LikeSchema]:
+    likes = await auth_service.get_my_likes(user_id, filters)
+    return likes

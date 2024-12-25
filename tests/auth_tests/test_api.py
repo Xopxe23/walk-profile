@@ -3,7 +3,7 @@ from httpx import AsyncClient
 
 
 async def test_auth_token_success(async_client: AsyncClient):
-    response = await async_client.post(url="/auth/token", json={
+    response = await async_client.post(url="/profile/token", json={
         "id": 123456789,
         "first_name": "Alice",
         "last_name": "Smith",
@@ -17,7 +17,7 @@ async def test_auth_token_success(async_client: AsyncClient):
 
 
 async def test_auth_token_invalid_hash(async_client: AsyncClient):
-    response = await async_client.post(url="/auth/token", json={
+    response = await async_client.post(url="/profile/token", json={
         "id": 123456789,
         "first_name": "Alice",
         "last_name": "Smith",
@@ -31,7 +31,7 @@ async def test_auth_token_invalid_hash(async_client: AsyncClient):
 
 
 async def test_auth_token_missing_first_name(async_client: AsyncClient):
-    response = await async_client.post(url="/auth/token", json={
+    response = await async_client.post(url="/profile/token", json={
         "id": 123456789,
         "first_name": None,
         "last_name": "Smith",
@@ -47,9 +47,9 @@ async def test_get_me(
         async_client: AsyncClient,
         authenticated_async_client: AsyncClient,
 ):
-    response = await async_client.get(url="/auth/me")
+    response = await async_client.get(url="/profile/me")
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    response = await authenticated_async_client.get(url="/auth/me")
+    response = await authenticated_async_client.get(url="/profile/me")
     assert response.status_code == status.HTTP_200_OK
     assert response.json().get("name") == "Alice"
 
@@ -59,12 +59,12 @@ async def test_update_me(
         authenticated_async_client: AsyncClient,
 ):
     body = {"name": "George", "age": 29, "sex": "M"}
-    response = await async_client.put(url="/auth/me", json=body)
+    response = await async_client.put(url="/profile/me", json=body)
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    response = await authenticated_async_client.put(url="/auth/me", json=body)
+    response = await authenticated_async_client.put(url="/profile/me", json=body)
     assert response.status_code == status.HTTP_200_OK
     assert response.json().get("name") == "George"
     body = {"name": "David"}
-    response = await authenticated_async_client.put(url="/auth/me", json=body)
+    response = await authenticated_async_client.put(url="/profile/me", json=body)
     assert response.status_code == status.HTTP_200_OK
     assert response.json().get("name") == "David"

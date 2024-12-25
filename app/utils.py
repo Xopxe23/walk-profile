@@ -13,6 +13,33 @@ class UserSex(enum.Enum):
     female = "F"
 
 
+class LikeStatus(enum.Enum):
+    new = "new"
+    seen = "seen"
+    match = "match"
+
+
+class MatchStatusEnum(enum.Enum):
+    new = "new"
+    seen = "seen"
+    deleted = "deleted"
+
+
+class Zodiac(enum.Enum):
+    aries = "aries"
+    taurus = "taurus"
+    gemini = "gemini"
+    cancer = "cancer"
+    leo = "leo"
+    virgo = "virgo"
+    libra = "libra"
+    scorpio = "scorpio"
+    sagittarius = "sagittarius"
+    capricorn = "capricorn"
+    aquarius = "aquarius"
+    pisces = "pisces"
+
+
 class CustomHTTPException(HTTPException):
     """Кастомный exception для наследования"""
 
