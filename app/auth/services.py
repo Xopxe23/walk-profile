@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import logging
 import uuid
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, Optional, Protocol
@@ -7,11 +8,13 @@ from typing import AsyncGenerator, Optional, Protocol
 import jwt
 from fastapi import Depends
 
+from app.broker.producer import get_kafka_producer
 from app.auth.filters import BaseFilter
 from app.auth.repositories import get_user_repository
-from app.auth.schemas import LikeCreateSchema, LikeSchema, TelegramUserInSchema, UserSchema, UserUpdateSchema
+from app.auth.schemas import LikeCreateSchema, LikeSchema, TelegramUserInSchema, UserSchema, UserUpdateSchema, \
+    MatchCreateSchema, MatchSchema
 from app.config.main import settings
-from app.tasks.tasks import check_mutual_like
+from app.logger import get_logger
 
 
 class UserRepositoryInterface(Protocol):
@@ -33,13 +36,31 @@ class UserRepositoryInterface(Protocol):
     async def get_my_likes(self, user_id: uuid.UUID, filters: BaseFilter) -> list[LikeSchema]:
         ...
 
+    async def check_mutual_like(self, user_id: uuid.UUID, liked_user_id: uuid.UUID) -> bool:
+        ...
+
+    async def create_match(self, match_data: MatchCreateSchema) -> MatchSchema:
+        ...
+
+
+class KafkaProducerInterface(Protocol):
+    likes_topic: str
+    matches_topic: str
+
+    async def sent_message(self, topic: str, data: dict) -> None:
+        ...
+
 
 class AuthService:
     def __init__(
             self,
             user_repository: UserRepositoryInterface,
+            kafka_producer: KafkaProducerInterface,
+            logger: logging.Logger,
     ):
         self.user_repository = user_repository
+        self.kafka_producer = kafka_producer
+        self.logger = logger
 
     @staticmethod
     def verify_telegram_hash(user_data: TelegramUserInSchema) -> bool:
@@ -81,17 +102,34 @@ class AuthService:
 
     async def create_like(self, user_id: uuid.UUID, like_data: LikeCreateSchema) -> LikeSchema:
         like = await self.user_repository.create_like(user_id, like_data)
-        check_mutual_like.delay(like.liked_user_id, like.user_id)
+        await self.kafka_producer.sent_message(self.kafka_producer.likes_topic, like.dict())
         return like
 
     async def get_my_likes(self, user_id: uuid.UUID, filters: BaseFilter) -> list[LikeSchema]:
         likes = await self.user_repository.get_my_likes(user_id, filters)
         return likes
 
+    async def _check_mutual_like(self, user_id: uuid.UUID, liked_user_id: uuid.UUID) -> None:
+        like_exists = await self.user_repository.check_mutual_like(user_id, liked_user_id)
+        if like_exists:
+            await self.user_repository.create_match(MatchCreateSchema(
+                user1_id=user_id,
+                user2_id=liked_user_id,
+            ))
+
+    async def _create_match(self, match_data: MatchCreateSchema) -> None:
+        match = await self.user_repository.create_match(match_data)
+        await self.kafka_producer.sent_message(self.kafka_producer.matches_topic, match.dict())
+        return match
+
 
 def get_auth_service(
+        kafka_producer: KafkaProducerInterface = Depends(get_kafka_producer),
         user_repository: UserRepositoryInterface = Depends(get_user_repository),
+        logger: logging.Logger = Depends(get_logger),
 ) -> AsyncGenerator[AuthService, None]:
     yield AuthService(
         user_repository=user_repository,
+        kafka_producer=kafka_producer,
+        logger=logger,
     )

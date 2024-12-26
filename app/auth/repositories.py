@@ -95,7 +95,7 @@ class UserRepository:
     async def check_mutual_like(self, user_id: uuid.UUID, liked_user_id: uuid.UUID) -> bool:
         query = (
             select(self.like_table)
-            .where(and_(self.like_table.user_id == user_id, self.like_table.liked_user_id == liked_user_id))
+            .where(and_(self.like_table.user_id == liked_user_id, self.like_table.liked_user_id == user_id))
         )
         result = await self.session.execute(query)
         return True if result.scalar_one_or_none() else False

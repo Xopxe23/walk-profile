@@ -1,3 +1,4 @@
+import datetime
 import enum
 import uuid
 from typing import Annotated, Any
@@ -48,3 +49,13 @@ class CustomHTTPException(HTTPException):
 
     def __init__(self, **kwargs: dict[str, Any]) -> None:
         super().__init__(status_code=self.STATUS_CODE, detail=self.DETAIL, **kwargs)
+
+
+def custom_serializer(obj):
+    if isinstance(obj, uuid.UUID):
+        return str(obj)
+    elif isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+    elif isinstance(obj, enum.Enum):
+        return obj.value
+    raise TypeError(f"Type {type(obj)} not serializable")
