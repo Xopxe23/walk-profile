@@ -3,7 +3,7 @@ from httpx import AsyncClient
 
 
 async def test_auth_token_success(async_client: AsyncClient):
-    response = await async_client.post(url="/profile/token", json={
+    response = await async_client.post(url="/auth/token", json={
         "id": 123456789,
         "first_name": "Alice",
         "last_name": "Smith",
@@ -17,7 +17,7 @@ async def test_auth_token_success(async_client: AsyncClient):
 
 
 async def test_auth_token_invalid_hash(async_client: AsyncClient):
-    response = await async_client.post(url="/profile/token", json={
+    response = await async_client.post(url="/auth/token", json={
         "id": 123456789,
         "first_name": "Alice",
         "last_name": "Smith",
@@ -31,7 +31,7 @@ async def test_auth_token_invalid_hash(async_client: AsyncClient):
 
 
 async def test_auth_token_missing_first_name(async_client: AsyncClient):
-    response = await async_client.post(url="/profile/token", json={
+    response = await async_client.post(url="/auth/token", json={
         "id": 123456789,
         "first_name": None,
         "last_name": "Smith",
