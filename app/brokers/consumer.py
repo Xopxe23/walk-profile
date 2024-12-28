@@ -5,7 +5,7 @@ from typing import AsyncGenerator, Optional
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
 from aiokafka.errors import KafkaError
 
-from app.config.main import settings
+from app.configs.main import settings
 from app.exceptions.auth import MatchExistsException
 from app.interfaces.services import ProfilesServiceInterface
 from app.logger import get_logger

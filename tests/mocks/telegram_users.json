@@ -1,0 +1,29 @@
+[
+  {
+    "id": 123456789,
+    "first_name": "Alice",
+    "last_name": "Smith",
+    "username": "alice_smith",
+    "photo_url": "https://t.me/i/userpic/320/alice_smith.jpg",
+    "auth_date": 1700000000,
+    "hash": "8148c1689fdc140a4a7b6c2182718f49d80b69588986c9412d37bcef5e974c5a"
+  },
+  {
+    "id": 987654321,
+    "first_name": "Bob",
+    "last_name": "Johnson",
+    "username": "bob_johnson",
+    "photo_url": "https://t.me/i/userpic/320/bob_johnson.jpg",
+    "auth_date": 1700001000,
+    "hash": "83b824d6e9b116205efa1c8df83fa17e6283c1b51ea7bb6ee8ec636223a3a1d6"
+  },
+  {
+    "id": 112233445,
+    "first_name": "Charlie",
+    "last_name": "Brown",
+    "username": "charlie_brown",
+    "photo_url": "https://t.me/i/userpic/320/charlie_brown.jpg",
+    "auth_date": 1700002000,
+    "hash": "74ae12d7d0de2e04c494e29f093e47ee42530b0b67683083af9f11b82297f7d0"
+  }
+]

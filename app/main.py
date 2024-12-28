@@ -11,15 +11,14 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from app.api.auth import router as auth_router
 from app.api.profile import router as profile_router
-from app.broker.consumer import get_kafka_consumer
-from app.broker.producer import get_kafka_producer
+from app.brokers.consumer import get_kafka_consumer
+from app.brokers.producer import get_kafka_producer
 from app.logger import get_logger
-
-logger = get_logger()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    logger = get_logger()
     kafka_producer = get_kafka_producer()
     await kafka_producer.start()
     logger.info("Kafka Producer initialized.")
@@ -27,7 +26,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     kafka_consumer = get_kafka_consumer()
     await kafka_consumer.start()
     await kafka_consumer.subscribe(["likes", "matches"])
-    asyncio.create_task(kafka_consumer.process_messages())
+    _ = asyncio.create_task(kafka_consumer.process_messages())
     logger.info("Kafka Consumer initialized.")
 
     yield
@@ -50,5 +49,5 @@ app.include_router(profile_router)
 
 if __name__ == "__main__":
     uvicorn.run(
-        "app.main:app", reload=True,
+        "app.main:app", reload=True, port=8001,
     )

@@ -64,7 +64,7 @@ async def test_update_me(
     response = await authenticated_async_client.put(url="/profile/me", json=body)
     assert response.status_code == status.HTTP_200_OK
     assert response.json().get("name") == "George"
-    body = {"name": "David"}
+    body = {"name": "David", "age": 29}
     response = await authenticated_async_client.put(url="/profile/me", json=body)
     assert response.status_code == status.HTTP_200_OK
     assert response.json().get("name") == "David"

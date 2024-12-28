@@ -1,14 +1,12 @@
 import datetime
 import enum
-import hashlib
-import hmac
 import uuid
 
 import jwt
 from fastapi import Depends
 from fastapi.security import APIKeyHeader
 
-from app.config.main import settings
+from app.configs.main import settings
 from app.exceptions.auth import InvalidTokenException
 
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)

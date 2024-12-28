@@ -1,7 +1,7 @@
-from app.config.kafka import KafkaConfig
-from app.config.postgres import PostgresConfig
-from app.config.redis import RedisConfig
-from app.config.secret import SecretsConfig
+from app.configs.kafka import KafkaConfig
+from app.configs.postgres import PostgresConfig
+from app.configs.redis import RedisConfig
+from app.configs.secret import SecretsConfig
 
 
 class AppSettings:

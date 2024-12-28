@@ -1,0 +1,35 @@
+[
+  {
+    "user_id": "47b8fc7a-ed9b-4d1c-999a-a6df22778b51",
+    "telegram_id": 123456789,
+    "name": "Alice",
+    "age": 29,
+    "sex": "female",
+    "bio": null,
+    "interests": null,
+    "city": null,
+    "zodiac": null
+  },
+  {
+    "user_id": "503138d1-c175-401e-bd4f-f3ed543f7abf",
+    "telegram_id": 112233445,
+    "name": "Bob",
+    "age": 23,
+    "sex": "male",
+    "bio": null,
+    "interests": null,
+    "city": null,
+    "zodiac": null
+  },
+  {
+    "user_id": "cfb8c340-2ad9-450f-9ef6-c80869e75cf1",
+    "telegram_id": 987654321,
+    "name": "Charlie",
+    "age": 28,
+    "sex": "female",
+    "bio": null,
+    "interests": null,
+    "city": null,
+    "zodiac": null
+  }
+]

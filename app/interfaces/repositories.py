@@ -9,7 +9,7 @@ from app.schemas.matches import MatchCreateSchema, MatchSchema
 from app.schemas.users import TelegramUserInSchema, UserSchema, UserUpdateSchema
 
 
-class UsersRepositoryInterface(ABC):
+class ProfilesPostgresRepositoryInterface(ABC):
     @abstractmethod
     async def get_user_by_telegram_id(self, telegram_id: int) -> Optional[UserSchema]:
         raise NotImplementedError
@@ -25,9 +25,6 @@ class UsersRepositoryInterface(ABC):
     @abstractmethod
     async def create_user_with_telegram_user_data(self, user_data: TelegramUserInSchema) -> UserSchema:
         raise NotImplementedError
-
-
-class LikesRepositoryInterface(ABC):
 
     @abstractmethod
     async def create_like(self, user_id: uuid.UUID, like_data: LikeCreateSchema) -> LikeSchema:
@@ -45,8 +42,6 @@ class LikesRepositoryInterface(ABC):
     async def update_like_status(self, like_id: uuid.UUID, status: LikeStatusEnum) -> Optional[LikeSchema]:
         raise NotImplementedError
 
-
-class MatchesRepositoryInterface(ABC):
     @abstractmethod
     async def create_match(self, match_data: MatchCreateSchema) -> MatchSchema:
         raise NotImplementedError

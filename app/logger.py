@@ -11,7 +11,7 @@ def get_logger() -> logging.Logger:
     )
 
     logging.getLogger('aiokafka').setLevel(logging.WARNING)
-    logging.getLogger('broker').setLevel(logging.WARNING)
+    logging.getLogger('brokers').setLevel(logging.WARNING)
     logging.getLogger('asyncio').setLevel(logging.WARNING)
 
     logger = logging.getLogger("walk-profile")

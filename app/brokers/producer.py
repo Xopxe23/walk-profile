@@ -4,12 +4,13 @@ from typing import Optional
 
 from aiokafka import AIOKafkaProducer
 
-from app.config.main import settings
+from app.configs.main import settings
+from app.interfaces.brokers import KafkaProducerInterface
 from app.logger import get_logger
 from app.utils import custom_serializer
 
 
-class KafkaProducer:
+class KafkaProducer(KafkaProducerInterface):
     likes_topic: str
     matches_topic: str
     _instance: Optional["KafkaProducer"] = None

@@ -1,29 +1,22 @@
 import asyncio
+import json
 import os
 import sys
-from typing import AsyncGenerator
 
 import pytest
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import NullPool
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy import insert
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from app.config.main import settings
-from app.database import Base, get_async_session
+
+from app.database import Base
 from app.main import app as fastapi_app
+from app.models.users import Users
+from app.services.profile import get_profiles_service
+from tests.dependensies.database import async_session_maker, engine
+from tests.dependensies.services import get_test_profiles_service
 
-DB_URL = settings.postgres.TEST_DB_URL
-engine = create_async_engine(DB_URL, poolclass=NullPool)
-async_session_maker = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-
-
-async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
-        yield session
-
-
-fastapi_app.dependency_overrides[get_async_session] = override_get_async_session
+fastapi_app.dependency_overrides[get_profiles_service] = get_test_profiles_service
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -31,6 +24,17 @@ async def prepare_database():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+
+    def open_mock_json(model: str):
+        with open(f'tests/mocks/{model}.json', "r") as file:
+            return json.load(file)
+
+    users = open_mock_json("users")
+
+    async with async_session_maker() as session:
+        add_users = insert(Users).values(users)
+        await session.execute(add_users)
+        await session.commit()
 
 
 @pytest.fixture(scope="session")
@@ -50,7 +54,7 @@ async def async_client():
 @pytest.fixture(scope="function")
 async def authenticated_async_client():
     async with AsyncClient(transport=ASGITransport(app=fastapi_app), base_url="http://test") as async_client:
-        response = await async_client.post("/profile/token", json={
+        response = await async_client.post("/auth/token", json={
             "id": 123456789,
             "first_name": "Alice",
             "last_name": "Smith",
