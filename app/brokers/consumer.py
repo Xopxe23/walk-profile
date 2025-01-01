@@ -11,7 +11,7 @@ from app.interfaces.services import ProfilesServiceInterface
 from app.logger import get_logger
 from app.models.likes import LikeStatusEnum
 from app.schemas.matches import MatchCreateSchema
-from app.services.profile import get_profiles_service
+from app.services.profiles import get_profiles_service
 
 
 class KafkaConsumer:

@@ -9,11 +9,13 @@ from fastapi import FastAPI
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
+
 from app.api.auth import router as auth_router
 from app.api.profile import router as profile_router
 from app.brokers.consumer import get_kafka_consumer
 from app.brokers.producer import get_kafka_producer
 from app.logger import get_logger
+from app.repositories.profiles_redis import get_profile_queues_redis_repository
 
 
 @asynccontextmanager
@@ -29,6 +31,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _ = asyncio.create_task(kafka_consumer.process_messages())
     logger.info("Kafka Consumer initialized.")
 
+    redis_repository = get_profile_queues_redis_repository()
+    await redis_repository.connect()
+    logger.info("Redis connection established.")
+
     yield
 
     await kafka_producer.stop()
@@ -36,6 +42,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     await kafka_consumer.stop()
     logger.info("Kafka Consumer stopped.")
+
+    await redis_repository.close()
+    logger.info("Redis connection closed.")
 
 
 app = FastAPI(

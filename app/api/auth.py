@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from app.exceptions.auth import InvalidTelegramDataException
 from app.interfaces.services import ProfilesServiceInterface
 from app.schemas.users import AccessTokenOutSchema, TelegramUserInSchema
-from app.services.profile import get_profiles_service
+from app.services.profiles import get_profiles_service
 
 router = APIRouter(
     prefix="/auth",

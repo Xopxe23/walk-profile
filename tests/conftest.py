@@ -5,14 +5,14 @@ import sys
 
 import pytest
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import insert
+from sqlalchemy import insert, text
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from app.database import Base
 from app.main import app as fastapi_app
 from app.models.users import Users
-from app.services.profile import get_profiles_service
+from app.services.profiles import get_profiles_service
 from tests.dependensies.database import async_session_maker, engine
 from tests.dependensies.services import get_test_profiles_service
 

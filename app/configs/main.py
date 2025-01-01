@@ -1,3 +1,4 @@
+from app.configs.elastic import ElasticConfig
 from app.configs.kafka import KafkaConfig
 from app.configs.postgres import PostgresConfig
 from app.configs.redis import RedisConfig
@@ -10,6 +11,7 @@ class AppSettings:
         self.secret = SecretsConfig()
         self.redis = RedisConfig()
         self.kafka = KafkaConfig()
+        self.elastic = ElasticConfig()
 
 
 settings = AppSettings()
