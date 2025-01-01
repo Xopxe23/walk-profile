@@ -13,6 +13,7 @@ def get_logger() -> logging.Logger:
     logging.getLogger('aiokafka').setLevel(logging.WARNING)
     logging.getLogger('brokers').setLevel(logging.WARNING)
     logging.getLogger('asyncio').setLevel(logging.WARNING)
+    logging.getLogger('elasticsearch').setLevel(logging.ERROR)
 
     logger = logging.getLogger("walk-profile")
     return logger

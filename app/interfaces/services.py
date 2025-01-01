@@ -53,3 +53,19 @@ class ProfilesServiceInterface(ABC):
     @abstractmethod
     async def create_match(self, match_data: MatchCreateSchema) -> None:
         raise NotImplementedError
+
+    @abstractmethod
+    async def update_user_document(self, user: UserSchema) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_user_for_action(self, user_id: uuid.UUID) -> Optional[UserSchema]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def add_users_queue(self, user: UserSchema) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def _get_users_queue(self, user: UserSchema) -> list[str]:
+        raise NotImplementedError

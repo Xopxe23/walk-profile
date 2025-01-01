@@ -27,9 +27,19 @@ class UserSchema(BaseModel):
     age: Optional[int] = None
     sex: Optional[UserSexEnum] = None
     bio: Optional[str] = None
-    interests: Optional[list] = None
+    interests: Optional[list[str]] = None
     city: Optional[str] = None
     zodiac: Optional[ZodiacEnum] = None
+
+    def dict(self, **kwargs):
+        data = super().dict(**kwargs)
+        if 'user_id' in data:
+            data['user_id'] = str(data['user_id'])
+        if 'sex' in data and data['sex']:
+            data['sex'] = data['sex'].value
+        if 'zodiac' in data and data['zodiac']:
+            data['zodiac'] = data['zodiac'].value
+        return data
 
     class Config:
         from_attributes = True
@@ -40,6 +50,13 @@ class UserUpdateSchema(BaseModel):
     age: Optional[int] = None
     sex: Optional[UserSexEnum] = None
     bio: Optional[str] = None
-    interests: Optional[list] = None
+    interests: Optional[list[str]] = None
     city: Optional[str] = None
     zodiac: Optional[ZodiacEnum] = None
+
+
+class UserDocumentSchema(BaseModel):
+    user_id: str
+    sex: Optional[str] = None
+    interests: Optional[list[str]] = None
+    city: Optional[str] = None

@@ -6,7 +6,7 @@ from app.filters.base import BaseFilter
 from app.models.likes import LikeStatusEnum
 from app.schemas.likes import LikeCreateSchema, LikeSchema
 from app.schemas.matches import MatchCreateSchema, MatchSchema
-from app.schemas.users import TelegramUserInSchema, UserSchema, UserUpdateSchema
+from app.schemas.users import TelegramUserInSchema, UserDocumentSchema, UserSchema, UserUpdateSchema
 
 
 class ProfilesPostgresRepositoryInterface(ABC):
@@ -44,4 +44,36 @@ class ProfilesPostgresRepositoryInterface(ABC):
 
     @abstractmethod
     async def create_match(self, match_data: MatchCreateSchema) -> MatchSchema:
+        raise NotImplementedError
+
+
+class ProfilesElasticRepositoryInterface(ABC):
+    @abstractmethod
+    async def update_user_document(self, user: UserDocumentSchema) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_users_queue(self, user: UserSchema) -> list[str]:
+        raise NotImplementedError
+
+
+class ProfileQueuesRedisRepositoryInterface(ABC):
+    @abstractmethod
+    async def connect(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def close(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_users_queue(self, user_id: str) -> list[str]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def pop_from_queue(self, user_id: str) -> Optional[str]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def add_to_queue(self, user_id: str, target_user_ids: list[str]) -> None:
         raise NotImplementedError

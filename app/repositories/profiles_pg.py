@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.database import get_async_session_maker
-from app.exceptions.auth import LikeExistsException, MatchExistsException
+from app.exceptions.profiles import LikeExistsException, MatchExistsException
 from app.filters.base import BaseFilter
 from app.interfaces.repositories import ProfilesPostgresRepositoryInterface
 from app.models.likes import Likes, LikeStatusEnum

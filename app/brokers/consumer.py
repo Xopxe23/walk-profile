@@ -6,12 +6,12 @@ from aiokafka import AIOKafkaConsumer, ConsumerRecord
 from aiokafka.errors import KafkaError
 
 from app.configs.main import settings
-from app.exceptions.auth import MatchExistsException
+from app.exceptions.profiles import MatchExistsException
 from app.interfaces.services import ProfilesServiceInterface
 from app.logger import get_logger
 from app.models.likes import LikeStatusEnum
 from app.schemas.matches import MatchCreateSchema
-from app.services.profile import get_profiles_service
+from app.services.profiles import get_profiles_service
 
 
 class KafkaConsumer:
