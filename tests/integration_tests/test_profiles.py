@@ -1,5 +1,5 @@
-from httpx import AsyncClient
 from fastapi import status
+from httpx import AsyncClient
 
 
 async def test_get_me(

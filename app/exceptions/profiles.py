@@ -1,6 +1,6 @@
 from fastapi import status
 
-from app.exceptions.common import NotFoundException, CustomHTTPException
+from app.exceptions.common import CustomHTTPException, NotFoundException
 
 
 class UserNotFoundException(NotFoundException):

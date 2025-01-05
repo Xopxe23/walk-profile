@@ -1,8 +1,8 @@
-"""add users, likes, matches tables
+"""add chats, messages tables
 
-Revision ID: 98a4c8f87b1d
+Revision ID: 111f0ce99707
 Revises: 
-Create Date: 2024-12-27 23:53:26.623888
+Create Date: 2025-01-05 23:21:04.702843
 
 """
 from typing import Sequence, Union
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = '98a4c8f87b1d'
+revision: str = '111f0ce99707'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,6 +26,7 @@ def upgrade() -> None:
     sa.Column('age', sa.Integer(), nullable=True),
     sa.Column('sex', sa.Enum('male', 'female', name='usersexenum'), nullable=True),
     sa.Column('bio', sa.String(), nullable=True),
+    sa.Column('photo_url', sa.String(), nullable=True),
     sa.Column('interests', sa.JSON(), nullable=True),
     sa.Column('city', sa.String(), nullable=True),
     sa.Column('zodiac', sa.Enum('aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces', name='zodiacenum'), nullable=True),

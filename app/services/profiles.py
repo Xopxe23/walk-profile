@@ -4,9 +4,10 @@ import hmac
 import logging
 import uuid
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Union
 
 import jwt
+from fastapi import UploadFile
 
 from app.brokers.producer import get_kafka_producer
 from app.configs.main import settings
@@ -16,6 +17,7 @@ from app.interfaces.repositories import (
     ProfileQueuesRedisRepositoryInterface,
     ProfilesElasticRepositoryInterface,
     ProfilesPostgresRepositoryInterface,
+    ProfilesS3RepositoryInterface,
 )
 from app.interfaces.services import ProfilesServiceInterface
 from app.logger import get_logger
@@ -23,9 +25,10 @@ from app.models.likes import LikeStatusEnum
 from app.repositories.profiles_es import get_profiles_es_repository
 from app.repositories.profiles_pg import get_profiles_pg_repository
 from app.repositories.profiles_redis import get_profile_queues_redis_repository
+from app.repositories.profiles_s3 import get_profiles_s3_repository
 from app.schemas.likes import LikeCreateSchema, LikeSchema
 from app.schemas.matches import MatchCreateSchema
-from app.schemas.users import TelegramUserInSchema, UserSchema, UserUpdateSchema
+from app.schemas.users import TelegramUserInSchema, UserSchema, UserUpdatePhotoSchema, UserUpdateSchema
 
 
 class ProfilesService(ProfilesServiceInterface):
@@ -33,12 +36,14 @@ class ProfilesService(ProfilesServiceInterface):
             self,
             profiles_pg_repository: ProfilesPostgresRepositoryInterface,
             profiles_elastic_repository: ProfilesElasticRepositoryInterface,
+            profiles_s3_repository: ProfilesS3RepositoryInterface,
             profile_queues_redis_repository: ProfileQueuesRedisRepositoryInterface,
             kafka_producer: KafkaProducerInterface,
             logger: logging.Logger,
     ):
         self.profiles_pg_repository = profiles_pg_repository
         self.profiles_elastic_repository = profiles_elastic_repository
+        self.profiles_s3_repository = profiles_s3_repository
         self.profile_queues_redis_repository = profile_queues_redis_repository
         self.kafka_producer = kafka_producer
         self.logger = logger
@@ -74,7 +79,9 @@ class ProfilesService(ProfilesServiceInterface):
         user = await self.profiles_pg_repository.get_user_by_id(user_id)
         return user
 
-    async def update_user_info(self, user_id: uuid.UUID, user_data: UserUpdateSchema) -> Optional[UserSchema]:
+    async def update_user_info(
+            self, user_id: uuid.UUID, user_data: Union[UserUpdateSchema, UserUpdatePhotoSchema]
+    ) -> Optional[UserSchema]:
         user = await self.profiles_pg_repository.update_user_info(user_id, user_data)
         _ = asyncio.create_task(self.update_user_document(user))
         return user
@@ -130,6 +137,9 @@ class ProfilesService(ProfilesServiceInterface):
         users_ids_queue = await self._get_users_queue(user)
         await self.profile_queues_redis_repository.add_to_queue(str(user.user_id), users_ids_queue)
 
+    async def upload_photo(self, user_uuid: uuid.UUID, file: UploadFile) -> str:
+        return await self.profiles_s3_repository.upload_file(file, user_uuid)
+
     async def _get_users_queue(self, user: UserSchema) -> list[str]:
         return await self.profiles_elastic_repository.get_users_queue(user)
 
@@ -137,6 +147,7 @@ class ProfilesService(ProfilesServiceInterface):
 def get_profiles_service() -> ProfilesService:
     profiles_pg_repository = get_profiles_pg_repository()
     profiles_elastic_repository = get_profiles_es_repository()
+    profiles_s3_repository = get_profiles_s3_repository()
     profile_queues_redis_repository = get_profile_queues_redis_repository()
     kafka_producer = get_kafka_producer()
     logger = get_logger()
@@ -144,6 +155,7 @@ def get_profiles_service() -> ProfilesService:
     return ProfilesService(
         profiles_pg_repository=profiles_pg_repository,
         profiles_elastic_repository=profiles_elastic_repository,
+        profiles_s3_repository=profiles_s3_repository,
         profile_queues_redis_repository=profile_queues_redis_repository,
         kafka_producer=kafka_producer,
         logger=logger,

@@ -37,6 +37,7 @@ class Users(Base):
     age: Mapped[int] = mapped_column(nullable=True)
     sex: Mapped[UserSexEnum] = mapped_column(Enum(UserSexEnum), nullable=True)
     bio: Mapped[str] = mapped_column(nullable=True)
+    photo_url: Mapped[str] = mapped_column(nullable=True)
     interests: Mapped[list] = mapped_column(JSON, nullable=True)
     city: Mapped[str] = mapped_column(nullable=True)
     zodiac: Mapped[ZodiacEnum] = mapped_column(Enum(ZodiacEnum), nullable=True)

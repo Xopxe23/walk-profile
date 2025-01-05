@@ -27,6 +27,7 @@ class UserSchema(BaseModel):
     age: Optional[int] = None
     sex: Optional[UserSexEnum] = None
     bio: Optional[str] = None
+    photo_url: Optional[HttpUrl] = None
     interests: Optional[list[str]] = None
     city: Optional[str] = None
     zodiac: Optional[ZodiacEnum] = None
@@ -53,6 +54,10 @@ class UserUpdateSchema(BaseModel):
     interests: Optional[list[str]] = None
     city: Optional[str] = None
     zodiac: Optional[ZodiacEnum] = None
+
+
+class UserUpdatePhotoSchema(BaseModel):
+    photo_url: str
 
 
 class UserDocumentSchema(BaseModel):

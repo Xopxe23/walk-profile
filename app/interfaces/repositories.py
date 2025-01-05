@@ -1,12 +1,21 @@
 import uuid
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import AsyncGenerator, Optional, Union
+
+from aiobotocore.client import AioBaseClient
+from fastapi import UploadFile
 
 from app.filters.base import BaseFilter
 from app.models.likes import LikeStatusEnum
 from app.schemas.likes import LikeCreateSchema, LikeSchema
 from app.schemas.matches import MatchCreateSchema, MatchSchema
-from app.schemas.users import TelegramUserInSchema, UserDocumentSchema, UserSchema, UserUpdateSchema
+from app.schemas.users import (
+    TelegramUserInSchema,
+    UserDocumentSchema,
+    UserSchema,
+    UserUpdatePhotoSchema,
+    UserUpdateSchema,
+)
 
 
 class ProfilesPostgresRepositoryInterface(ABC):
@@ -19,7 +28,9 @@ class ProfilesPostgresRepositoryInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def update_user_info(self, user_id: uuid.UUID, user_data: UserUpdateSchema) -> Optional[UserSchema]:
+    async def update_user_info(
+            self, user_id: uuid.UUID, user_data: Union[UserUpdateSchema, UserUpdatePhotoSchema]
+    ) -> Optional[UserSchema]:
         raise NotImplementedError
 
     @abstractmethod
@@ -77,3 +88,13 @@ class ProfileQueuesRedisRepositoryInterface(ABC):
     @abstractmethod
     async def add_to_queue(self, user_id: str, target_user_ids: list[str]) -> None:
         raise NotImplementedError
+
+
+class ProfilesS3RepositoryInterface(ABC):
+    @abstractmethod
+    async def upload_file(self, file: UploadFile, user_uuid: uuid.UUID) -> str:
+        pass
+
+    @abstractmethod
+    async def get_client(self) -> AsyncGenerator[AioBaseClient, None]:
+        pass

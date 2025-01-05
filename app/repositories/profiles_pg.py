@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional
+from typing import Optional, Union
 
 from sqlalchemy import and_, desc, select, update
 from sqlalchemy.exc import IntegrityError
@@ -14,7 +14,7 @@ from app.models.matches import Matches
 from app.models.users import Users
 from app.schemas.likes import LikeCreateSchema, LikeSchema
 from app.schemas.matches import MatchCreateSchema, MatchSchema
-from app.schemas.users import TelegramUserInSchema, UserSchema, UserUpdateSchema
+from app.schemas.users import TelegramUserInSchema, UserSchema, UserUpdatePhotoSchema, UserUpdateSchema
 
 
 class ProfilesPostgresRepository(ProfilesPostgresRepositoryInterface):
@@ -44,7 +44,9 @@ class ProfilesPostgresRepository(ProfilesPostgresRepositoryInterface):
             return None
         return UserSchema.model_validate(user)
 
-    async def update_user_info(self, user_id: uuid.UUID, user_data: UserUpdateSchema) -> Optional[UserSchema]:
+    async def update_user_info(
+            self, user_id: uuid.UUID, user_data: Union[UserUpdateSchema, UserUpdatePhotoSchema]
+    ) -> Optional[UserSchema]:
         query = (
             update(self.users_table)
             .where(self.users_table.user_id == user_id)

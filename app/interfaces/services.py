@@ -1,12 +1,14 @@
 import uuid
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Union
+
+from fastapi import UploadFile
 
 from app.filters.base import BaseFilter
 from app.models.likes import LikeStatusEnum
 from app.schemas.likes import LikeCreateSchema, LikeSchema
 from app.schemas.matches import MatchCreateSchema
-from app.schemas.users import TelegramUserInSchema, UserSchema, UserUpdateSchema
+from app.schemas.users import TelegramUserInSchema, UserSchema, UserUpdatePhotoSchema, UserUpdateSchema
 
 
 class ProfilesServiceInterface(ABC):
@@ -23,7 +25,9 @@ class ProfilesServiceInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def update_user_info(self, user_id: uuid.UUID, user_data: UserUpdateSchema) -> UserSchema:
+    async def update_user_info(
+            self, user_id: uuid.UUID, user_data: Union[UserUpdateSchema, UserUpdatePhotoSchema]
+    ) -> Optional[UserSchema]:
         raise NotImplementedError
 
     @abstractmethod
@@ -69,3 +73,7 @@ class ProfilesServiceInterface(ABC):
     @abstractmethod
     async def _get_users_queue(self, user: UserSchema) -> list[str]:
         raise NotImplementedError
+
+    @abstractmethod
+    async def upload_photo(self, user_uuid: uuid.UUID, file: UploadFile) -> str:
+        pass
