@@ -1,7 +1,9 @@
+import pytest
 from fastapi import status
 from httpx import AsyncClient
 
 
+@pytest.mark.asyncio
 async def test_get_me(
         async_client: AsyncClient,
         authenticated_async_client: AsyncClient,
@@ -13,6 +15,7 @@ async def test_get_me(
     assert response.json().get("name") == "Alice"
 
 
+@pytest.mark.asyncio
 async def test_update_me(
         async_client: AsyncClient,
         authenticated_async_client: AsyncClient,

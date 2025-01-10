@@ -17,6 +17,13 @@ def get_mocked_es_repository():
     return es_repository
 
 
+def get_mocked_s3_repository():
+    es_repository = MagicMock()
+    es_repository.upload_file = MagicMock()
+    es_repository.get_client = MagicMock()
+    return es_repository
+
+
 def get_mocked_redis_repository():
     es_repository = MagicMock()
     es_repository.connect = MagicMock()

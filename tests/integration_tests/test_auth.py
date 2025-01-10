@@ -1,6 +1,8 @@
+import pytest
 from httpx import AsyncClient
 
 
+@pytest.mark.asyncio
 async def test_auth_token_success(async_client: AsyncClient):
     response = await async_client.post(url="/auth/token", json={
         "id": 123456789,
@@ -15,6 +17,7 @@ async def test_auth_token_success(async_client: AsyncClient):
     assert response.json().get("access_token")
 
 
+@pytest.mark.asyncio
 async def test_auth_token_invalid_hash(async_client: AsyncClient):
     response = await async_client.post(url="/auth/token", json={
         "id": 123456789,
@@ -29,6 +32,7 @@ async def test_auth_token_invalid_hash(async_client: AsyncClient):
     assert response.json().get("detail") == "Invalid telegram auth data"
 
 
+@pytest.mark.asyncio
 async def test_auth_token_missing_first_name(async_client: AsyncClient):
     response = await async_client.post(url="/auth/token", json={
         "id": 123456789,

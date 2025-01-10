@@ -5,7 +5,7 @@ import sys
 
 import pytest
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import insert, text
+from sqlalchemy import insert
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 

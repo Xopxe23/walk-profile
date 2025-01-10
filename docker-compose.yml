@@ -9,8 +9,21 @@ services:
       interval: 3s
       timeout: 1s
       retries: 1
+    networks:
+      - walk-network
     volumes:
       - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  redis:
+    image: redis:7.2
+    container_name: walk-redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+    networks:
+      - walk-network
 
   walk-profile:
     build:
@@ -19,8 +32,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - walk-network
     env_file:
       - .env
     command: ["/walk-profile/docker/app.sh"]
     ports:
       - 8001:8001
+
+networks:
+  walk-network:
+    external: true

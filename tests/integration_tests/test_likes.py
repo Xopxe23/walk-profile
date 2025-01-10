@@ -1,7 +1,9 @@
+import pytest
 from httpx import AsyncClient
 from starlette import status
 
 
+@pytest.mark.asyncio
 async def test_like_profile(
         authenticated_async_client: AsyncClient,
 ):
@@ -12,6 +14,7 @@ async def test_like_profile(
     assert response.json().get("liked_user_id") == liked_user_id
 
 
+@pytest.mark.asyncio
 async def test_my_likes(
         authenticated_async_client: AsyncClient,
 ):
