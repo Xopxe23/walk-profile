@@ -1,5 +1,5 @@
 services:
-  db:
+  profile-db:
     image: postgres:15
     container_name: walk-profile-db
     env_file:
@@ -14,7 +14,7 @@ services:
     volumes:
       - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
 
-  redis:
+  profile-redis:
     image: redis:7.2
     container_name: walk-redis
     healthcheck:
@@ -25,12 +25,12 @@ services:
     networks:
       - walk-network
 
-  walk-profile:
+  profile-app:
     build:
       context: .
     container_name: walk-profile-app
     depends_on:
-      db:
+      profile-db:
         condition: service_healthy
     networks:
       - walk-network

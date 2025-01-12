@@ -8,5 +8,5 @@ class RedisConfig(BaseConfig):
     @property
     def REDIS_URL(self):
         if self.DOCKER:
-            self.REDIS_HOST = "redis"
+            self.REDIS_HOST = "profile-redis"
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
